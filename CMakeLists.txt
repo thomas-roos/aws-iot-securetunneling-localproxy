@@ -6,10 +6,19 @@ project(${AWS_TUNNEL_LOCAL_PROXY_TARGET_NAME} CXX)
 
 option(BUILD_TESTS "Build tests" OFF)
 option(LINK_STATIC_OPENSSL "Use static openssl libs" ON)
+option(GIT_VERSION "Updates the version number using the Git commit history" ON)
 if(BUILD_TESTS)
     set(AWS_TUNNEL_LOCAL_PROXY_TEST_NAME localproxytest)
     project(${AWS_TUNNEL_LOCAL_PROXY_TEST_NAME} CXX)
 endif(BUILD_TESTS)
+
+#########################################
+# Generate Version Information from Git #
+#########################################
+find_package(Git)
+include(CMakeLists.txt.versioning)
+# Now we inject the version information into a header that is accessible from the local proxy executable
+configure_file("src/Version.h.in" "${PROJECT_BINARY_DIR}/Version.h")
 
 ######################################
 # Section : Disable in-source builds #
@@ -83,7 +92,7 @@ endif(BUILD_TESTS)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_DEBUG_RUNTIME OFF)
 #set_property(GLOBAL PROPERTY Boost_USE_MULTITHREADED ON)
-set(BOOST_PKG_VERSION "1.81.0" CACHE STRING "")
+set(BOOST_PKG_VERSION "1.87.0" CACHE STRING "")
 find_package(Boost ${BOOST_PKG_VERSION} REQUIRED COMPONENTS system log log_setup thread program_options date_time filesystem chrono)
 include_directories(${Boost_INCLUDE_DIRS})
 foreach(BOOST_LIB ${Boost_LIBRARIES})
